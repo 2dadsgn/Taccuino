@@ -8,7 +8,9 @@
     "start": "electron ./electron",
     "run:exe": "powershell -Command \"Start-Process .\\electron\\dist-win\\Taccuino-win32-x64\\Taccuino.exe\"",
     "test": "node ./tests/run-tests.js",
-    "pack:win": "npm run build:frontend && powershell -Command \"Copy-Item -Path 'frontend\\dist\\frontend\\*' -Destination 'electron\\dist\\' -Recurse -Force\" && npx --prefix electron @electron/packager ./electron Taccuino --platform=win32 --arch=x64 --out=./electron/dist-win --overwrite"
+    "pack:win": "npm run build:frontend && powershell -Command \"Copy-Item -Path 'frontend\\dist\\frontend\\*' -Destination 'electron\\dist\\' -Recurse -Force\" && npx --prefix electron @electron/packager ./electron Taccuino --platform=win32 --arch=x64 --out=./electron/dist-win --overwrite",
+    "dist:installer": "npm run dist:installer --prefix electron",
+    "build:installer": "npm run build:frontend && powershell -Command \"Copy-Item -Path 'frontend\\dist\\frontend\\*' -Destination 'electron\\dist\\' -Recurse -Force\" && npm run dist:installer --prefix electron"
   },
   "author": "Antigravity Engineering",
   "license": "MIT",

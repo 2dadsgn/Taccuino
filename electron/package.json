@@ -6,7 +6,8 @@
   "scripts": {
     "start": "electron .",
     "pack:dir": "electron-builder --win --dir",
-    "pack:exe": "electron-builder --win portable"
+    "pack:exe": "electron-builder --win portable",
+    "dist:installer": "electron-builder --win nsis --x64"
   },
   "author": "Antigravity Engineering",
   "license": "MIT",
@@ -20,9 +21,23 @@
     "asar": true,
     "win": {
       "target": [
-        "dir",
-        "portable"
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
       ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Taccuino",
+      "artifactName": "${productName}-Setup-${version}.${ext}",
+      "runAfterFinish": true
     },
     "directories": {
       "output": "dist-win"
