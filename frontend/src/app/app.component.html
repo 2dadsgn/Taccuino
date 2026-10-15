@@ -1,0 +1,620 @@
+<div class="taccuino-app">
+  <!-- Top App Window Bar -->
+  <header class="app-header" id="app-header">
+    <div class="brand-title">
+      <div class="brand-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+          <line x1="12" y1="6" x2="16" y2="6"></line>
+          <line x1="12" y1="10" x2="16" y2="10"></line>
+        </svg>
+      </div>
+      <span>Taccuino</span>
+      <span class="brand-badge">Finanze</span>
+    </div>
+
+    <div class="header-right-group">
+      <button
+        class="header-action-btn"
+        id="btn-import-csv"
+        (click)="importFromCsv()"
+        title="Importa dati da file CSV"
+      >
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="17 8 12 3 7 8"></polyline>
+          <line x1="12" y1="3" x2="12" y2="15"></line>
+        </svg>
+        <span>Importa CSV</span>
+      </button>
+
+      <input
+        type="file"
+        id="csv-file-input"
+        #csvFileInput
+        style="display: none"
+        accept=".csv,.txt"
+        (change)="onFileSelected($event)"
+      />
+
+      <button
+        class="header-action-btn"
+        id="btn-export-csv"
+        (click)="exportToCsv()"
+        title="Esporta tutti i dati in formato CSV"
+      >
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        <span>Esporta CSV</span>
+      </button>
+
+      <button
+        class="header-action-btn btn-danger-action"
+        id="btn-reset-db"
+        (click)="openResetModal()"
+        title="Resetta l'intero database con doppia conferma"
+      >
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"></polyline>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          <line x1="10" y1="11" x2="10" y2="17"></line>
+          <line x1="14" y1="11" x2="14" y2="17"></line>
+        </svg>
+        <span>Resetta DB</span>
+      </button>
+
+      <div class="header-status">
+        <span class="status-indicator online"></span>
+        <span class="status-text">Connesso</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Application Body -->
+  <div class="app-layout">
+    <!-- LEFT SIDEBAR: RIEPILOGO -->
+    <aside class="sidebar" id="sidebar-riepilogo">
+      <div class="sidebar-header">
+        <div class="sidebar-title-badge">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="3" width="20" height="14" rx="2"></rect>
+            <line x1="8" y1="21" x2="16" y2="21"></line>
+            <line x1="12" y1="17" x2="12" y2="21"></line>
+          </svg>
+          <h2>RIEPILOGO</h2>
+        </div>
+      </div>
+
+      <div class="sidebar-cards">
+        <!-- Bilancio Totale -->
+        <div class="balance-card total" id="card-bilancio-totale">
+          <div class="balance-card-header">
+            <span class="balance-label">Bilancio Totale:</span>
+            <span class="fisco-badge-pill" title="Calcolato esclusivamente su entrate Fisco">🏛️ Fisco</span>
+          </div>
+          <span class="balance-value" id="val-bilancio-totale">{{ formatCurrency(balances.bilancio_totale) }}</span>
+          <div class="sub-balance-row" id="sub-bilancio-totale-ectoplasma">
+            <span class="sub-balance-label">Con Ectoplasma:</span>
+            <span class="sub-balance-value">{{ formatCurrency(balances.bilancio_totale_con_ectoplasma) }}</span>
+          </div>
+        </div>
+
+        <!-- Bilancio Annuale -->
+        <div class="balance-card annual" id="card-bilancio-annuale">
+          <div class="balance-card-header">
+            <span class="balance-label">Bilancio Annuale:</span>
+            <span class="fisco-badge-pill" title="Calcolato esclusivamente su entrate Fisco">🏛️ Fisco</span>
+          </div>
+          <span class="balance-value" id="val-bilancio-annuale">{{ formatCurrency(balances.bilancio_annuale) }}</span>
+          <div class="sub-balance-row" id="sub-bilancio-annuale-ectoplasma">
+            <span class="sub-balance-label">Con Ectoplasma:</span>
+            <span class="sub-balance-value">{{ formatCurrency(balances.bilancio_annuale_con_ectoplasma) }}</span>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Bilancio Mensile -->
+        <div class="balance-card monthly" [class.positive]="balances.bilancio_mensile >= 0" [class.negative]="balances.bilancio_mensile < 0" id="card-bilancio-mensile">
+          <div class="balance-card-header">
+            <span class="balance-label">Bilancio Mensile:</span>
+            <span class="fisco-badge-pill" title="Calcolato esclusivamente su entrate Fisco">🏛️ Fisco</span>
+          </div>
+          <span class="balance-value" id="val-bilancio-mensile">
+            {{ balances.bilancio_mensile >= 0 ? '+ ' : '' }}{{ formatCurrency(balances.bilancio_mensile) }}
+          </span>
+          <div class="sub-balance-row" id="sub-bilancio-mensile-ectoplasma">
+            <span class="sub-balance-label">Con Ectoplasma:</span>
+            <span class="sub-balance-value">
+              {{ (balances.bilancio_mensile_con_ectoplasma || 0) >= 0 ? '+ ' : '' }}{{ formatCurrency(balances.bilancio_mensile_con_ectoplasma) }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Entrate Mensili -->
+        <div class="balance-card income" id="card-entrate-mensili">
+          <div class="balance-card-header">
+            <span class="pill-dot income-dot"></span>
+            <span class="balance-label">Entrate Mensili:</span>
+          </div>
+          <span class="balance-value income-value" id="val-entrate-mensili">{{ formatCurrency(balances.entrate_mensili) }}</span>
+        </div>
+
+        <!-- Uscite Mensili -->
+        <div class="balance-card expense" id="card-uscite-mensili">
+          <div class="balance-card-header">
+            <span class="pill-dot expense-dot"></span>
+            <span class="balance-label">Uscite Mensili:</span>
+          </div>
+          <span class="balance-value expense-value" id="val-uscite-mensili">{{ formatCurrency(balances.uscite_mensili) }}</span>
+        </div>
+
+        <!-- Visual Cash Flow Bar -->
+        <div class="cashflow-bar-container" title="Rapporto Entrate/Uscite">
+          <div class="cashflow-label">
+            <span>Flusso Mensile</span>
+            <span>{{ balances.entrate_mensili > 0 ? (100 - (balances.uscite_mensili / balances.entrate_mensili * 100)).toFixed(0) + '% risparmio' : '0%' }}</span>
+          </div>
+          <div class="cashflow-track">
+            <div class="cashflow-fill-income" [style.width.%]="100">
+              <div class="cashflow-fill-expense" [style.width.%]="balances.entrate_mensili > 0 ? (balances.uscite_mensili / balances.entrate_mensili * 100) : 0"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- RIGHT / CENTRAL MAIN AREA -->
+    <main class="main-content" id="main-content">
+      <!-- Month Navigation Bar -->
+      <section class="month-navigator-bar" id="month-navigator">
+        <button class="nav-arrow-btn" id="btn-prev-month" (click)="prevMonth()" title="Mese Precedente">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+
+        <div class="current-month-display" id="label-current-month">
+          <span class="month-text">{{ currentMonthLabel }}</span>
+        </div>
+
+        <button class="nav-arrow-btn" id="btn-next-month" (click)="nextMonth()" title="Mese Successivo">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+
+        <button class="today-shortcut-btn" id="btn-today" (click)="goToCurrentMonth()" title="Vai a Oggi">
+          Oggi
+        </button>
+
+        <!-- Search Bar -->
+        <div class="search-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input
+            type="text"
+            id="input-search"
+            placeholder="Cerca nota o voce..."
+            [(ngModel)]="searchQuery"
+            (ngModelChange)="onSearchChange()"
+          />
+        </div>
+      </section>
+
+      <!-- Entries Table / List -->
+      <section class="entries-container" id="entries-list-container">
+        <!-- Table Header -->
+        <div class="entries-header-row">
+          <div class="col-date">Data</div>
+          <div class="col-notes">Descrizione / Note</div>
+          <div class="col-amount">Importo</div>
+          <div class="col-type">Tipo</div>
+          <div class="col-actions">Azioni</div>
+        </div>
+
+        <!-- Entries Rows -->
+        <div class="entries-list" id="entries-rows">
+          <div
+            *ngFor="let item of filteredEntries; let i = index"
+            class="entry-row"
+            [attr.data-id]="item.id"
+            [class.row-entrata]="item.type === 'entrata'"
+            [class.row-uscita]="item.type === 'uscita'"
+            [id]="'entry-row-' + item.id"
+          >
+            <div class="col-date">
+              <span class="date-badge">{{ formatDateDisplay(item.date) }}</span>
+            </div>
+            <div class="col-notes">
+              <span class="notes-text">{{ item.notes }}</span>
+            </div>
+            <div class="col-amount">
+              <span class="amount-text" [class.amount-positive]="item.type === 'entrata'" [class.amount-negative]="item.type === 'uscita'">
+                {{ item.type === 'entrata' ? '+' : '-' }} {{ formatCurrency(item.amount) }}
+              </span>
+            </div>
+            <div class="col-type">
+              <span class="type-badge" [class.badge-entrata]="item.type === 'entrata'" [class.badge-uscita]="item.type === 'uscita'">
+                {{ item.type === 'entrata' ? 'ENTRATA' : 'USCITA' }}
+              </span>
+              <span *ngIf="item.type === 'entrata' && (item.category === 'ectoplasma' || item.subType === 'ectoplasma')" class="category-badge badge-ectoplasma" title="Entrata Ectoplasma">
+                👻 Ecto
+              </span>
+              <span *ngIf="item.type === 'entrata' && (item.category === 'fisco' || item.subType === 'fisco')" class="category-badge badge-fisco" title="Entrata Fisco">
+                🏛️ Fisco
+              </span>
+            </div>
+            <div class="col-actions">
+              <button
+                type="button"
+                class="btn-delete-entry"
+                [id]="'btn-delete-entry-' + item.id"
+                (click)="deleteEntry(item, $event)"
+                title="Elimina voce"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  <line x1="10" y1="11" x2="10" y2="17"></line>
+                  <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div *ngIf="filteredEntries.length === 0" class="empty-state" id="empty-state-message">
+            <div class="empty-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+            </div>
+            <p class="empty-title">Nessuna voce registrata</p>
+            <p class="empty-subtitle">Clicca sul pulsante (+) in basso per aggiungere una transazione.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- FLOATING ACTION BUTTON [ + ] -->
+      <button
+        class="floating-action-button"
+        id="fab-add-entry"
+        (click)="openAddModal()"
+        aria-label="Aggiungi Nuova Transazione"
+        title="Aggiungi Nuova Transazione"
+      >
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+      </button>
+    </main>
+  </div>
+
+  <!-- MODAL: AGGIUNGI VOCE -->
+  <div class="modal-backdrop" *ngIf="isModalOpen" (click)="closeModal()" id="modal-backdrop">
+    <div class="modal-container" (click)="$event.stopPropagation()" id="modal-add-entry">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon-badge">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </div>
+          <h3>Nuova Transazione</h3>
+        </div>
+        <button class="modal-close-btn" (click)="closeModal()" id="btn-modal-close" aria-label="Chiudi">
+          &times;
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Error Alert -->
+        <div class="form-error-alert" *ngIf="formError" id="modal-error-alert">
+          {{ formError }}
+        </div>
+
+        <!-- Form fields -->
+        <div class="form-group">
+          <label for="input-entry-type">Tipo di Movimento</label>
+          <div class="type-toggle-group">
+            <button
+              type="button"
+              class="type-pill-btn"
+              [class.active-entrata]="newType === 'entrata'"
+              id="type-entrata-btn"
+              (click)="setEntryType('entrata')"
+            >
+              <span class="pill-dot income-dot"></span> ENTRATA
+            </button>
+            <button
+              type="button"
+              class="type-pill-btn"
+              [class.active-uscita]="newType === 'uscita'"
+              id="type-uscita-btn"
+              (click)="setEntryType('uscita')"
+            >
+              <span class="pill-dot expense-dot"></span> USCITA
+            </button>
+          </div>
+
+          <!-- Additional Subtype Buttons below ENTRATA and USCITA when ENTRATA is selected -->
+          <div class="subtype-section" *ngIf="newType === 'entrata'" id="income-subtype-container">
+            <span class="subtype-label-text">Tipologia Entrata <span class="req-star">* (obbligatorio: Fisco oppure Ectoplasma)</span></span>
+            <div class="subtype-toggle-group">
+              <button
+                type="button"
+                class="subtype-pill-btn btn-fisco"
+                [class.active-fisco]="isFiscoSelected"
+                id="type-fisco-btn"
+                (click)="toggleFisco()"
+              >
+                <span class="subtype-icon">🏛️</span>
+                <span class="subtype-name">Fisco</span>
+                <span class="check-pill" *ngIf="isFiscoSelected">✓</span>
+              </button>
+              <button
+                type="button"
+                class="subtype-pill-btn btn-ectoplasma"
+                [class.active-ectoplasma]="isEctoplasmaSelected"
+                id="type-ectoplasma-btn"
+                (click)="toggleEctoplasma()"
+              >
+                <span class="subtype-icon">👻</span>
+                <span class="subtype-name">Ectoplasma</span>
+                <span class="check-pill" *ngIf="isEctoplasmaSelected">✓</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="input-entry-date">Data</label>
+          <input
+            type="date"
+            id="input-entry-date"
+            class="form-control"
+            [(ngModel)]="newDate"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="input-entry-notes">Descrizione / Note</label>
+          <input
+            type="text"
+            id="input-entry-notes"
+            class="form-control"
+            placeholder="Es. Stipendio, Spesa Coop, Bolletta..."
+            [(ngModel)]="newNotes"
+            autofocus
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="input-entry-amount">Importo (€)</label>
+          <div class="amount-input-wrapper">
+            <span class="currency-prefix">€</span>
+            <input
+              type="number"
+              step="0.01"
+              min="0.01"
+              id="input-entry-amount"
+              class="form-control amount-input"
+              placeholder="0.00"
+              [(ngModel)]="newAmount"
+              (keyup.enter)="submitEntry()"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btn-cancel" (click)="closeModal()">
+          Annulla
+        </button>
+        <button type="button" class="btn btn-primary" id="btn-save" (click)="submitEntry()">
+          Salva Voce
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reset Database Double Confirmation Modal -->
+  <div class="modal-backdrop" *ngIf="isResetModalOpen" (click)="closeResetModal()">
+    <div class="modal-content reset-modal" id="modal-reset-confirm" (click)="$event.stopPropagation()">
+      <!-- Step 1: Initial Warning -->
+      <ng-container *ngIf="resetStep === 1">
+        <div class="modal-header danger-header">
+          <div class="danger-icon-badge">⚠️</div>
+          <h3>Attenzione: Cancellazione Database</h3>
+          <button class="btn-close" (click)="closeResetModal()">✕</button>
+        </div>
+        <div class="modal-body">
+          <p class="reset-warning-text">
+            Stai per cancellare <strong>tutte le transazioni</strong> memorizzate nel database.
+          </p>
+          <p class="reset-sub-text">
+            Questa operazione è irreversibile e riporterà a zero tutti i bilanci (Totale, Annuale e Mensile).
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-reset" (click)="closeResetModal()">
+            Annulla
+          </button>
+          <button type="button" class="btn btn-danger" id="btn-proceed-reset-step2" (click)="proceedToResetStep2()">
+            Continua con il reset →
+          </button>
+        </div>
+      </ng-container>
+
+      <!-- Step 2: Final Double Confirmation -->
+      <ng-container *ngIf="resetStep === 2">
+        <div class="modal-header danger-header">
+          <div class="danger-icon-badge">🛑</div>
+          <h3>Conferma Definitiva Cancellazione</h3>
+          <button class="btn-close" (click)="closeResetModal()">✕</button>
+        </div>
+        <div class="modal-body">
+          <p class="reset-warning-text">
+            Per confermare definitivamente l'azzeramento, digita <strong>CONFERMA</strong> nel campo sottostante:
+          </p>
+          <div class="form-group" style="margin-top: 15px;">
+            <input
+              type="text"
+              id="input-reset-confirmation"
+              class="form-control"
+              placeholder="Digita CONFERMA"
+              [(ngModel)]="resetConfirmText"
+              (keyup.enter)="executeDatabaseReset()"
+              autocomplete="off"
+            />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="resetStep = 1">
+            ← Indietro
+          </button>
+          <button
+            type="button"
+            class="btn btn-danger btn-confirm-wipe"
+            id="btn-reset-final-confirm"
+            [disabled]="resetConfirmText.trim().toUpperCase() !== 'CONFERMA'"
+            (click)="executeDatabaseReset()"
+          >
+            Confermo definitivamente la cancellazione
+          </button>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+
+  <!-- Google Authenticator 2FA Startup Screen -->
+  <div class="auth-overlay-backdrop" id="auth-page-container" *ngIf="!isAuthenticated">
+    <div class="auth-card">
+      <div class="auth-card-header">
+        <div class="auth-shield-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            <polyline points="9 12 11 14 15 10"></polyline>
+          </svg>
+        </div>
+        <h2>Taccuino Sicurezza</h2>
+        <p class="auth-subtitle" *ngIf="!isAuthConfigured">
+          Sincronizza il tuo Google Authenticator per visualizzare il mese e le transazioni.
+        </p>
+        <p class="auth-subtitle" *ngIf="isAuthConfigured">
+          Inserisci il codice temporaneo a 6 cifre per aprire la vista mensile.
+        </p>
+      </div>
+
+      <!-- Case A: First Time Setup View -->
+      <div class="auth-body" id="auth-setup-view" *ngIf="!isAuthConfigured">
+        <div class="setup-step">
+          <span class="step-num">1</span>
+          <span>Inquadra il codice QR con <strong>Google Authenticator</strong></span>
+        </div>
+
+        <div class="qr-code-wrapper" *ngIf="authQrCodeUrl">
+          <img [src]="authQrCodeUrl" alt="QR Code Google Authenticator" class="auth-qr-img" id="auth-qr-code" />
+        </div>
+
+        <div class="setup-step" style="margin-top: 14px;">
+          <span class="step-num">2</span>
+          <span>Oppure inserisci manualmente la chiave segreta:</span>
+        </div>
+
+        <div class="secret-key-box" id="auth-secret-display">
+          <code>{{ authSecret }}</code>
+          <button type="button" class="btn-copy-secret" id="btn-copy-secret" (click)="copyAuthSecret()" title="Copia Chiave">
+            {{ authKeyCopied ? '✓ Copiato' : 'Copia' }}
+          </button>
+        </div>
+
+        <div class="setup-step" style="margin-top: 16px;">
+          <span class="step-num">3</span>
+          <span>Inserisci il codice generato a 6 cifre per attivare:</span>
+        </div>
+
+        <div class="auth-input-group">
+          <input
+            type="text"
+            id="input-auth-code"
+            class="auth-code-input"
+            maxlength="6"
+            placeholder="000000"
+            [(ngModel)]="authInputCode"
+            (keyup.enter)="submitAuthSetup()"
+            autocomplete="one-time-code"
+          />
+          <button
+            type="button"
+            class="btn-auth-action"
+            id="btn-verify-setup"
+            (click)="submitAuthSetup()"
+          >
+            Verifica e Inizia
+          </button>
+        </div>
+
+        <div class="auth-error-alert" id="auth-error-msg" *ngIf="authError">
+          ⚠️ {{ authError }}
+        </div>
+      </div>
+
+      <!-- Case B: Subsequent Startups Login View -->
+      <div class="auth-body" id="auth-verify-view" *ngIf="isAuthConfigured">
+        <div class="auth-login-prompt">
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <p>Inserisci il codice da <strong>Google Authenticator</strong> per sbloccare la vista mensile.</p>
+        </div>
+
+        <div class="auth-input-group centered">
+          <input
+            type="text"
+            id="input-auth-code"
+            class="auth-code-input large"
+            maxlength="6"
+            placeholder="000000"
+            [(ngModel)]="authInputCode"
+            (keyup.enter)="submitAuthLogin()"
+            autocomplete="one-time-code"
+          />
+        </div>
+
+        <button
+          type="button"
+          class="btn-auth-action full-width"
+          id="btn-verify-login"
+          (click)="submitAuthLogin()"
+        >
+          Sblocca e Accedi
+        </button>
+
+        <div class="auth-error-alert" id="auth-error-msg" *ngIf="authError">
+          ⚠️ {{ authError }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export Toast Notification -->
+  <div class="export-toast-notification" *ngIf="exportNotification" id="export-toast">
+    <div class="toast-content">
+      <span class="toast-check-icon">✓</span>
+      <span class="toast-message">{{ exportNotification }}</span>
+    </div>
+  </div>
+</div>

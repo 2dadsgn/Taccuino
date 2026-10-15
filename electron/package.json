@@ -1,0 +1,40 @@
+{
+  "name": "taccuino",
+  "version": "1.0.0",
+  "description": "Windows desktop application for monthly finance tracking",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "pack:dir": "electron-builder --win --dir",
+    "pack:exe": "electron-builder --win portable"
+  },
+  "author": "Antigravity Engineering",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.3.3",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.taccuino.app",
+    "productName": "Taccuino",
+    "asar": true,
+    "win": {
+      "target": [
+        "dir",
+        "portable"
+      ]
+    },
+    "directories": {
+      "output": "dist-win"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "store.js",
+      "dist/**/*"
+    ]
+  },
+  "dependencies": {
+    "qrcode": "^1.5.4"
+  }
+}

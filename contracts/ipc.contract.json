@@ -1,0 +1,234 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Taccuino IPC Contract",
+  "version": "1.0.0",
+  "endpoints": {
+    "IPC: get-entries": {
+      "channel": "get-entries",
+      "description": "Fetch financial entries for a given month and year",
+      "request": {
+        "type": "object",
+        "properties": {
+          "month": { "type": "number", "minimum": 1, "maximum": 12 },
+          "year": { "type": "number" }
+        },
+        "required": ["month", "year"]
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "entries": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "date": { "type": "string" },
+                "notes": { "type": "string" },
+                "amount": { "type": "number" },
+                "type": { "type": "string", "enum": ["entrata", "uscita"] },
+                "category": { "type": "string", "enum": ["fisco", "ectoplasma"] },
+                "subType": { "type": "string", "enum": ["fisco", "ectoplasma"] }
+              },
+              "required": ["id", "date", "notes", "amount", "type"]
+            }
+          }
+        },
+        "required": ["entries"]
+      }
+    },
+    "IPC: add-entry": {
+      "channel": "add-entry",
+      "description": "Add a new financial transaction entry",
+      "request": {
+        "type": "object",
+        "properties": {
+          "date": { "type": "string" },
+          "notes": { "type": "string" },
+          "amount": { "type": "number" },
+          "type": { "type": "string", "enum": ["entrata", "uscita"] },
+          "category": { "type": "string", "enum": ["fisco", "ectoplasma"] },
+          "subType": { "type": "string", "enum": ["fisco", "ectoplasma"] }
+        },
+        "required": ["date", "notes", "amount", "type"]
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "id": { "type": "string" }
+        },
+        "required": ["success", "id"]
+      }
+    },
+    "IPC: get-balances": {
+      "channel": "get-balances",
+      "description": "Calculate and return balance summaries for given month/year and all-time",
+      "request": {
+        "type": "object",
+        "properties": {
+          "month": { "type": "number", "minimum": 1, "maximum": 12 },
+          "year": { "type": "number" }
+        },
+        "required": ["month", "year"]
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "bilancio_totale": { "type": "number" },
+          "bilancio_mensile": { "type": "number" },
+          "bilancio_annuale": { "type": "number" },
+          "uscite_mensili": { "type": "number" },
+          "entrate_mensili": { "type": "number" },
+          "bilancio_totale_con_ectoplasma": { "type": "number" },
+          "bilancio_mensile_con_ectoplasma": { "type": "number" },
+          "bilancio_annuale_con_ectoplasma": { "type": "number" },
+          "entrate_mensili_con_ectoplasma": { "type": "number" },
+          "entrate_mensili_ectoplasma": { "type": "number" }
+        },
+        "required": ["bilancio_totale", "bilancio_mensile", "bilancio_annuale", "uscite_mensili", "entrate_mensili"]
+      }
+    },
+    "IPC: get-all-entries": {
+      "channel": "get-all-entries",
+      "description": "Fetch all financial entries for full data export",
+      "response": {
+        "type": "object",
+        "properties": {
+          "entries": { "type": "array" }
+        },
+        "required": ["entries"]
+      }
+    },
+    "IPC: export-csv": {
+      "channel": "export-csv",
+      "description": "Export data content to a CSV file on Windows local filesystem",
+      "request": {
+        "type": "object",
+        "properties": {
+          "csv": { "type": "string" },
+          "defaultFilename": { "type": "string" }
+        },
+        "required": ["csv"]
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "filePath": { "type": "string" },
+          "canceled": { "type": "boolean" }
+        },
+        "required": ["success"]
+      }
+    },
+    "IPC: import-csv": {
+      "channel": "import-csv",
+      "description": "Import transactions from a CSV file into the store",
+      "request": {
+        "type": "object",
+        "properties": {
+          "csvContent": { "type": "string" }
+        }
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "importedCount": { "type": "number" },
+          "canceled": { "type": "boolean" },
+          "filePath": { "type": "string" },
+          "error": { "type": "string" }
+        },
+        "required": ["success", "importedCount"]
+      }
+    },
+    "IPC: delete-entry": {
+      "channel": "delete-entry",
+      "description": "Delete a single entry by ID",
+      "request": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" }
+        },
+        "required": ["id"]
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "error": { "type": "string" }
+        },
+        "required": ["success"]
+      }
+    },
+    "IPC: reset-database": {
+      "channel": "reset-database",
+      "description": "Wipe all transaction records from the store",
+      "request": {
+        "type": "object"
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "error": { "type": "string" }
+        },
+        "required": ["success"]
+      }
+    },
+    "IPC: get-auth-status": {
+      "channel": "get-auth-status",
+      "description": "Fetch current Google Authenticator 2FA state",
+      "response": {
+        "type": "object",
+        "properties": {
+          "isConfigured": { "type": "boolean" },
+          "isAuthenticated": { "type": "boolean" },
+          "secret": { "type": "string" },
+          "otpauthUrl": { "type": "string" },
+          "qrCodeDataUrl": { "type": "string" }
+        },
+        "required": ["isConfigured", "isAuthenticated"]
+      }
+    },
+    "IPC: setup-auth": {
+      "channel": "setup-auth",
+      "description": "Pair and verify Google Authenticator with initial 6-digit code",
+      "request": {
+        "type": "object",
+        "properties": {
+          "secret": { "type": "string" },
+          "code": { "type": "string" }
+        },
+        "required": ["secret", "code"]
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "error": { "type": "string" }
+        },
+        "required": ["success"]
+      }
+    },
+    "IPC: verify-auth-code": {
+      "channel": "verify-auth-code",
+      "description": "Verify Google Authenticator 6-digit TOTP code on app startup",
+      "request": {
+        "type": "object",
+        "properties": {
+          "code": { "type": "string" }
+        },
+        "required": ["code"]
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "error": { "type": "string" }
+        },
+        "required": ["success"]
+      }
+    }
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "project_context": "Windows desktop application built with Angular (UI) and Electron (Container). It functions as a monthly finance tracker displaying entries (date, notes, amount, entrata/uscita) with sidebar aggregations.",
+  "execution_mode": "PARALLEL",
+  "shared_contract": {
+    "path": "./contracts/ipc.contract.json",
+    "endpoints": {
+      "IPC: get-entries": {
+        "request": { "month": "number", "year": "number" },
+        "response": { "entries": "[{id, date, notes, amount, type, category, subType}]" }
+      },
+      "IPC: add-entry": {
+        "request": { "date": "string", "notes": "string", "amount": "number", "type": "'entrata' | 'uscita'", "category": "'fisco' | 'ectoplasma'" },
+        "response": { "success": "boolean", "id": "string" }
+      },
+      "IPC: get-balances": {
+        "request": { "month": "number", "year": "number" },
+        "response": { "bilancio_totale": "number", "bilancio_mensile": "number", "bilancio_annuale": "number", "uscite_mensili": "number", "entrate_mensili": "number", "bilancio_totale_con_ectoplasma": "number", "bilancio_mensile_con_ectoplasma": "number", "bilancio_annuale_con_ectoplasma": "number" }
+      }
+    }
+  },
+  "agents_config": {
+    "ANGULAR": {
+      "model": "gemini-3.8-flash",
+      "effort": "high",
+      "allowed_write_path": "./frontend/"
+    },
+    "ELECTRON": {
+      "model": "gemini-3.8-flash",
+      "effort": "high",
+      "allowed_write_path": "./electron/"
+    },
+    "QA": {
+      "model": "gemini-3.8-flash",
+      "effort": "high",
+      "allowed_write_path": "./tests/"
+    }
+  },
+  "tasks": [
+    {
+      "id": "TASK-01",
+      "role": "[ANGULAR]",
+      "parallel_group": 1,
+      "title": "Angular UI and Data Binding",
+      "target_dir": "./frontend/",
+      "description": "Develop the main view with a left sidebar for balances and a main central area for the monthly list view. Implement month navigation arrows, entry formatting (entrata/uscita flags), and the '+' floating action button. Bind data to the IPC contract.",
+      "dependencies": []
+    },
+    {
+      "id": "TASK-02",
+      "role": "[ELECTRON]",
+      "parallel_group": 1,
+      "title": "Electron Main Process and IPC",
+      "target_dir": "./electron/",
+      "description": "Initialize the Electron container configured for Windows. Set up local JSON or SQLite storage. Expose IPC handlers (get-entries, add-entry, get-balances) matching the shared_contract.",
+      "dependencies": []
+    },
+    {
+      "id": "TASK-03",
+      "role": "[QA]",
+      "parallel_group": 1,
+      "title": "Author Test Suites",
+      "target_dir": "./tests/",
+      "description": "Write Playwright/Electron integration tests inside ./tests/ testing the IPC contract mock data, window rendering, and UI assertions.",
+      "dependencies": []
+    },
+    {
+      "id": "TASK-04",
+      "role": "[QA]",
+      "parallel_group": 2,
+      "title": "Execute Integration Tests",
+      "target_dir": "./tests/",
+      "description": "Run the test suites authored in TASK-03 against the completed TASK-01 and TASK-02 builds. Issue structured rework reports if assertions fail.",
+      "dependencies": ["TASK-01", "TASK-02", "TASK-03"]
+    },
+    {
+      "id": "TASK-05",
+      "role": "[ANGULAR]",
+      "parallel_group": 3,
+      "title": "Fisco and Ectoplasma UI Controls and Sub-balances",
+      "target_dir": "./frontend/",
+      "description": "Add Fisco and Ectoplasma toggle buttons below Entrata/Uscita in modal. Enforce at least one selected for entrate. Add sub-balance displays under Totale, Annuale, Mensile in sidebar.",
+      "dependencies": []
+    },
+    {
+      "id": "TASK-06",
+      "role": "[ELECTRON]",
+      "parallel_group": 3,
+      "title": "Fisco Isolation & Ectoplasma Calculations in Store",
+      "target_dir": "./electron/",
+      "description": "Isolate standard balances to Fisco entrate only; compute aggregate balances considering Ectoplasma in separate metrics.",
+      "dependencies": []
+    },
+    {
+      "id": "TASK-07",
+      "role": "[QA]",
+      "parallel_group": 4,
+      "title": "Verify Fisco & Ectoplasma Conformance",
+      "target_dir": "./tests/",
+      "description": "Test contract conformance, UI rendering of Fisco/Ectoplasma elements, and strict balance separation in integration tests.",
+      "dependencies": ["TASK-05", "TASK-06"]
+    }
+  ]
+}

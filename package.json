@@ -1,0 +1,18 @@
+{
+  "name": "taccuino",
+  "version": "1.0.0",
+  "description": "Windows desktop application - Monthly Finance Tracker built with Angular and Electron",
+  "scripts": {
+    "build:frontend": "npm run build --prefix frontend",
+    "start:frontend": "npm run start --prefix frontend",
+    "start": "electron ./electron",
+    "run:exe": "powershell -Command \"Start-Process .\\electron\\dist-win\\Taccuino-win32-x64\\Taccuino.exe\"",
+    "test": "node ./tests/run-tests.js",
+    "pack:win": "npm run build:frontend && powershell -Command \"Copy-Item -Path 'frontend\\dist\\frontend\\*' -Destination 'electron\\dist\\' -Recurse -Force\" && npx --prefix electron @electron/packager ./electron Taccuino --platform=win32 --arch=x64 --out=./electron/dist-win --overwrite"
+  },
+  "author": "Antigravity Engineering",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.3.3"
+  }
+}

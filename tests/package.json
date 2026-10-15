@@ -1,0 +1,10 @@
+{
+  "name": "taccuino-tests",
+  "version": "1.0.0",
+  "description": "Integration and contract tests for Taccuino Desktop application",
+  "scripts": {
+    "test": "node run-tests.js"
+  },
+  "author": "Antigravity Engineering QA",
+  "license": "MIT"
+}
